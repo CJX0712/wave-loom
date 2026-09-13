@@ -1,0 +1,1010 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>坍缩织机 · Wave Loom</title>
+<style>
+  :root{
+    --bg:#f7f8fa; --card:#fff; --ink:#111827; --ink2:#4b5563; --ink3:#9ca3af;
+    --line:#e5e7eb; --line2:#f0f1f3;
+    --acc:#0d9488; --acc-soft:#ecfdf5;
+    --red:#dc2626; --red-soft:#fef2f2;
+    --amber:#d97706; --amber-soft:#fffbeb;
+    --green:#059669; --green-soft:#ecfdf5;
+    --blue:#2563eb; --blue-soft:#eff6ff;
+    --violet:#7c3aed; --violet-soft:#f5f3ff;
+    --mono:ui-monospace,SFMono-Regular,Menlo,Consolas,"Liberation Mono",monospace;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{background:var(--bg);color:var(--ink);
+    font:14px/1.6 -apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
+    -webkit-font-smoothing:antialiased}
+  .wrap{max-width:1220px;margin:0 auto;padding:28px 22px 80px}
+  header.top{display:flex;align-items:baseline;gap:14px;flex-wrap:wrap;margin-bottom:20px}
+  header.top h1{font-size:23px;margin:0;letter-spacing:-.2px}
+  header.top .tag{color:var(--ink2);font-size:13px;margin:0}
+
+  .card{background:var(--card);border:1px solid var(--line);border-radius:12px;margin-bottom:16px;overflow:hidden}
+  .card-h{display:flex;align-items:center;gap:10px;padding:13px 16px;border-bottom:1px solid var(--line2);background:#fcfcfd;flex-wrap:wrap}
+  .card-h h2{font-size:14px;margin:0;font-weight:600}
+  .card-h .hint{font-size:12px;color:var(--ink3);font-weight:400}
+  .card-h .right{margin-left:auto;display:flex;gap:8px;align-items:center}
+  .card-b{padding:16px}
+
+  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:14px}
+  .f{display:flex;flex-direction:column;gap:6px;font-size:12px;color:var(--ink2)}
+  .f b{color:var(--ink);font-weight:600}
+  select,input[type=text]{width:100%;padding:7px 9px;border:1px solid var(--line);border-radius:8px;background:#fdfdfe;
+    color:var(--ink);font:13px/1.4 inherit;outline:none}
+  select:focus,input[type=text]:focus{border-color:var(--acc);background:#fff}
+  input[type=range]{width:100%;accent-color:var(--acc)}
+  .row{display:flex;gap:6px}
+  .row input{flex:1;min-width:0}
+
+  button{padding:7px 13px;border:1px solid var(--line);border-radius:8px;background:#fff;color:var(--ink);
+    font:13px/1.4 inherit;cursor:pointer;white-space:nowrap}
+  button:hover{background:#f9fafb;border-color:#d1d5db}
+  button.primary{background:var(--acc);border-color:var(--acc);color:#fff}
+  button.primary:hover{background:#0f766e}
+  button:disabled{opacity:.45;cursor:not-allowed}
+
+  .btns{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:14px}
+  .sep{width:1px;height:20px;background:var(--line);margin:0 3px}
+  .chk{display:flex;align-items:center;gap:5px;font-size:12px;color:var(--ink2);cursor:pointer;user-select:none}
+  .chk input{accent-color:var(--acc)}
+
+  .note{margin-top:12px;font-size:12px;color:var(--ink3);line-height:1.7}
+  .note b{color:var(--ink2);font-weight:600}
+
+  .bar{height:6px;background:var(--line2);border-radius:99px;overflow:hidden;margin-bottom:14px}
+  .bar i{display:block;height:100%;width:0;background:var(--acc);border-radius:99px;transition:width .12s linear}
+
+  .stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(96px,1fr));gap:10px;margin-bottom:14px}
+  .st{background:#fbfcfd;border:1px solid var(--line2);border-radius:9px;padding:8px 10px}
+  .st .v{font:600 16px/1.3 var(--mono);color:var(--ink)}
+  .st .k{font-size:11px;color:var(--ink3);margin-top:1px}
+
+  .cvbox{background:#fbfcfd;border:1px solid var(--line2);border-radius:10px;padding:10px;overflow:auto;text-align:center}
+  canvas{display:block;margin:0 auto;image-rendering:pixelated}
+  #cv{border-radius:4px}
+
+  .tag2{font-size:11px;padding:2px 8px;border-radius:99px;font-family:var(--mono)}
+  .t-run{background:var(--blue-soft);color:var(--blue)}
+  .t-done{background:var(--green-soft);color:var(--green)}
+  .t-fail{background:var(--red-soft);color:var(--red)}
+  .t-idle{background:var(--line2);color:var(--ink3)}
+
+  details.exp{padding:14px 16px}
+  details.exp summary{cursor:pointer;font-weight:600;font-size:13px;outline:none}
+  details.exp .body{margin-top:12px;font-size:13px;color:var(--ink2);line-height:1.85}
+  details.exp h4{margin:16px 0 6px;font-size:13px;color:var(--ink)}
+  details.exp code{font-family:var(--mono);background:#f3f4f6;padding:1px 5px;border-radius:4px;font-size:12px;color:var(--ink)}
+  details.exp ol,details.exp ul{margin:6px 0;padding-left:22px}
+  details.exp li{margin:3px 0}
+  .kv{font-size:12px;color:var(--ink3)}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <h1>坍缩织机 · Wave Loom</h1>
+    <p class="tag">Wave Function Collapse —— 不靠随机堆砌，靠「约束」把图案自己长出来</p>
+  </header>
+
+  <div class="card">
+    <div class="card-h"><h2>1 · 织机设置</h2><span class="hint">改动任意一项都会重新起织</span></div>
+    <div class="card-b">
+      <div class="grid">
+        <label class="f"><span>纹样预设</span>
+          <select id="preset"></select>
+        </label>
+        <label class="f"><span>网格列数 <b id="colsV">40</b></span>
+          <input type="range" id="cols" min="8" max="72" step="1" value="40">
+        </label>
+        <label class="f"><span>织造速度 <b id="speedV">6</b> 格/帧</span>
+          <input type="range" id="speed" min="1" max="80" step="1" value="6">
+        </label>
+        <label class="f"><span>随机种子</span>
+          <span class="row"><input type="text" id="seed" spellcheck="false"><button id="btnSeed">换</button></span>
+        </label>
+      </div>
+      <div class="btns">
+        <button id="btnPlay" class="primary">暂停</button>
+        <button id="btnStep">单步</button>
+        <button id="btnFast">立刻织完</button>
+        <button id="btnReset">重新织</button>
+        <span class="sep"></span>
+        <label class="chk"><input type="checkbox" id="cbHeat" checked> 熵热图</label>
+        <label class="chk"><input type="checkbox" id="cbGrid"> 网格线</label>
+        <label class="chk"><input type="checkbox" id="cbWrap"> 环面</label>
+        <span class="sep"></span>
+        <button id="btnPng">导出 PNG</button>
+        <button id="btnJson">导出 JSON</button>
+      </div>
+      <div class="note" id="presetDesc"></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-h"><h2>2 · 织造过程</h2><span class="hint" id="stateTag"></span></div>
+    <div class="card-b">
+      <div class="bar"><i id="barFill"></i></div>
+      <div class="stats">
+        <div class="st"><div class="v" id="sDone">0</div><div class="k">已坍缩</div></div>
+        <div class="st"><div class="v" id="sLeft">0</div><div class="k">未坍缩</div></div>
+        <div class="st"><div class="v" id="sEnt">0</div><div class="k">平均候选数</div></div>
+        <div class="st"><div class="v" id="sConf">0</div><div class="k">冲突</div></div>
+        <div class="st"><div class="v" id="sBack">0</div><div class="k">回溯</div></div>
+        <div class="st"><div class="v" id="sRestart">0</div><div class="k">重织</div></div>
+        <div class="st"><div class="v" id="sMs">0</div><div class="k">耗时 ms</div></div>
+      </div>
+      <div class="cvbox"><canvas id="cv"></canvas></div>
+      <div class="note">深色 = 候选少、快要定下来；浅色 = 还很自由。约束传播会像涟漪一样从刚定下的那格扩散出去。</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-h"><h2>3 · 图块与拼缝规则</h2><span class="hint">每块四条边各带一个标签，只有标签相同的边才能相接</span></div>
+    <div class="card-b"><div class="cvbox"><canvas id="lgcv"></canvas></div></div>
+  </div>
+
+  <div class="card">
+    <div class="card-h"><h2>4 · 这台织机在干什么</h2></div>
+    <details class="exp" open>
+      <summary>算法原理（点开收起）</summary>
+      <div class="body">
+        <p>每一格一开始都「同时是所有可能的图块」——这就是波形还没坍缩的状态。织机每走一步做三件事：</p>
+        <ol>
+          <li><b>选格</b>：挑候选最少的那一格（熵最小）。信息越少的地方越该先定，因为它最容易把别人逼到无路可走。</li>
+          <li><b>坍缩</b>：按预设权重随机挑一个图块定下来。权重决定风格——弯管多就是迷宫，直管多就是电路板。</li>
+          <li><b>传播</b>：这一格定了，四条边就把邻居的候选集削一遍；被削过的邻居再去削它的邻居，直到不再有变化。</li>
+        </ol>
+        <h4>为什么不会织出断头</h4>
+        <p>因为「能不能挨着」这件事在开局就预计算成了兼容表：<code>compat[方向][图块A]</code> 存的是所有能在该方向与 A 相接的图块集合。
+        传播时把邻居的候选集和这个集合取交集。交集为空 = 这一格已经无解，也就是<b>冲突</b>。</p>
+        <h4>冲突了怎么办</h4>
+        <p>先<b>回溯</b>：回退到上一个存档点，把刚才那个错误选择划掉，重新挑。存档点只保留了最近 300 步，
+        回不去的极端情况才会整局重织（计数器里的「重织」）。</p>
+        <p>顺带说明：对角上的两个角不受同一条边约束，理论上可能顶死 —— 比如左上已是深水、右下已是陆地，
+        跨了两级，31 个图块里没有一个是这样，冲突就发生了。这个缝很窄，所以计数器多数时候是 0，
+        但正是它保证了织机不会卡死在半路。</p>
+        <h4>两种图块集</h4>
+        <ul>
+          <li><b>边标签式</b>（管道/迷宫/结绳/地牢）：每个图块的四条边是 0 或 1，穷举全部 16 种组合。因为组合是完备的，
+          任何一条边的组合都找得到图块，所以几乎不会冲突。</li>
+          <li><b>角标签式</b>（地形）：四个角各取「深水/浅滩/陆地」三档高度，并且<b>一格内高度差不允许超过一级</b>。
+          3⁴ = 81 种组合因此只剩 31 种 —— 这个「不许跳级」是整套东西的关键：它让跨格的高度也被迫平滑过渡，
+          才长得成连片大陆和海岸线。若把 81 种全放开，约束就退化成「共享角一致」，WFC 会退化成格点随机场，
+          配合最小熵优先织出来的是规则斜条纹，不是地形。</li>
+        </ul>
+        <h4>确定性</h4>
+        <p>所有随机都来自种子驱动的 <code>mulberry32</code>。同一个种子 + 同一套设置，织出来的图案逐格一致，可以直接复现。</p>
+      </div>
+    </details>
+  </div>
+</div>
+
+<script>
+"use strict";
+/* ============================================================
+   0. 基础工具
+   ============================================================ */
+const $ = s => document.querySelector(s);
+const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
+
+function mulberry32(a){
+  return function(){
+    a |= 0; a = a + 0x6D2B79F5 | 0;
+    let t = Math.imul(a ^ a >>> 15, 1 | a);
+    t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t;
+    return ((t ^ t >>> 14) >>> 0) / 4294967296;
+  };
+}
+function hashSeed(str){
+  let h = 2166136261 >>> 0;
+  const s = String(str);
+  for (let i = 0; i < s.length; i++){ h ^= s.charCodeAt(i); h = Math.imul(h, 16777619); }
+  return h >>> 0;
+}
+function popcnt(v){
+  v = v - ((v >> 1) & 0x55555555);
+  v = (v & 0x33333333) + ((v >> 2) & 0x33333333);
+  v = (v + (v >> 4)) & 0x0f0f0f0f;
+  return (v * 0x01010101) >> 24;
+}
+const bitIndex = b => 31 - Math.clz32(b);
+
+/* 方向：0=北 1=东 2=南 3=西 */
+const OPP = [2, 3, 0, 1];
+const DX = [0, 1, 0, -1];
+const DY = [-1, 0, 1, 0];
+const DIR_ZH = ['北', '东', '南', '西'];
+
+/* ============================================================
+   1. 图块集
+   ============================================================ */
+/* 边标签式：四条边取 0/1，穷举 16 种。bit0=N bit1=E bit2=S bit3=W */
+const BINARY_TILES = (() => {
+  const arr = [];
+  for (let m = 0; m < 16; m++){
+    arr.push({ id: m, kind: 'edge', edges: [m & 1, (m >> 1) & 1, (m >> 2) & 1, (m >> 3) & 1] });
+  }
+  return arr;
+})();
+
+/* 角标签式：四角取高度 0(深水)/1(浅滩)/2(陆地)，但**限制一格内极差 <= 1**。
+   这个限制至关重要 —— 若把 3^4 种组合全放进去，约束就退化成「共享角一致」，
+   WFC 会退化成格点随机场，配合最小熵优先会织出规则斜条纹而不是地形。
+   限制极差后：81 种只剩 31 种，跨格的高度也被迫平滑过渡，约束才真正变硬。
+   四条边的标签 = 相邻两角组成的三位数，于是「边相同」等价于「共享的两角一致」。 */
+const CORNER_TILES = (() => {
+  const arr = [];
+  for (let m = 0; m < 81; m++){
+    const tl = Math.floor(m / 27), tr = Math.floor(m / 9) % 3,
+          br = Math.floor(m / 3) % 3, bl = m % 3;
+    const hi = Math.max(tl, tr, br, bl), lo = Math.min(tl, tr, br, bl);
+    if (hi - lo > 1) continue;
+    /* 四条边按「顺时针读两个角」编码，顺序不能乱：
+       N=(左上,右上) E=(右上,右下) S=(左下,右下) W=(左上,左下)
+       这样 A 的 E 边 (tr,br) 与右邻 B 的 W 边 (tl,bl) 相等时，
+       才真的是 tr_A==tl_B 且 br_A==bl_B —— 共享的角对得上而不是交叉对上。 */
+    arr.push({
+      id: arr.length, src: m, kind: 'corner',
+      corners: [tl, tr, br, bl],
+      edges: [tl * 3 + tr, tr * 3 + br, bl * 3 + br, tl * 3 + bl]
+    });
+  }
+  return arr;
+})();
+
+function binaryName(m){
+  const b = [m & 1, (m >> 1) & 1, (m >> 2) & 1, (m >> 3) & 1];
+  const c = b[0] + b[1] + b[2] + b[3];
+  if (c === 0) return '空';
+  if (c === 4) return '十字';
+  if (c === 1) return '端点·' + DIR_ZH[b.indexOf(1)];
+  if (c === 3) return '三通·缺' + DIR_ZH[b.indexOf(0)];
+  return (b[0] && b[2]) || (b[1] && b[3]) ? '直通' : '拐角';
+}
+const FLAT_NAME = ['深水', '浅滩', '陆地'];
+function cornerName(t){
+  const c = t.corners;
+  const hi = Math.max(c[0], c[1], c[2], c[3]);
+  const lo = Math.min(c[0], c[1], c[2], c[3]);
+  if (hi === lo) return FLAT_NAME[hi];
+  let up = 0;
+  for (let k = 0; k < 4; k++) if (c[k] === hi) up++;
+  return (lo === 0 ? '水岸' : '岸线') + '·' + up + '角';
+}
+
+/* 兼容表：compat[d][t] = 所有能在 d 方向与 t 相接的图块掩码 */
+function buildCompat(tiles){
+  const n = tiles.length;
+  const compat = [];
+  for (let d = 0; d < 4; d++){
+    const row = new Int32Array(n);
+    for (let t = 0; t < n; t++){
+      let mask = 0;
+      for (let u = 0; u < n; u++){
+        if (tiles[t].edges[d] === tiles[u].edges[OPP[d]]) mask |= (1 << u);
+      }
+      row[t] = mask;
+    }
+    compat.push(row);
+  }
+  return compat;
+}
+
+/* ============================================================
+   2. 预设（同一批图块，换权重与画法就是完全不同的纹样）
+   ============================================================ */
+function binaryWeight(m, w){
+  const b = [m & 1, (m >> 1) & 1, (m >> 2) & 1, (m >> 3) & 1];
+  const c = b[0] + b[1] + b[2] + b[3];
+  if (c === 0) return w.w0;
+  if (c === 1) return w.w1;
+  if (c === 2) return (b[0] && b[2]) || (b[1] && b[3]) ? w.wS : w.wB;
+  if (c === 3) return w.w3;
+  return w.w4;
+}
+
+const PRESETS = [
+  {
+    key: 'pipe', name: '管道回路 · Circuits', set: 'binary', painter: 'pipe',
+    weights: { w0: 3.0, w1: 0.30, wS: 9.0, wB: 2.0, w3: 0.45, w4: 0.22 },
+    pal: { bg: '#0f172a', glow: 'rgba(56,189,248,.20)', line: '#38bdf8', dot: '#e0f2fe', grid: 'rgba(148,163,184,.13)' },
+    desc: '直通权重最高，于是长成电路板走线那种味道：长直段多、拐弯克制、偶尔来个三通。'
+  },
+  {
+    key: 'maze', name: '迷宫回廊 · Maze', set: 'binary', painter: 'maze',
+    weights: { w0: 0.55, w1: 0.10, wS: 1.6, wB: 9.0, w3: 0.10, w4: 0.015 },
+    pal: { bg: '#1f2937', glow: 'rgba(248,250,252,.10)', line: '#f8fafc', dot: '#e5e7eb', grid: 'rgba(148,163,184,.16)' },
+    desc: '把拐角的权重拉到压倒性高，同时几乎禁掉十字和三通 —— 通道就只能一路绕，出不来回路。'
+  },
+  {
+    key: 'knot', name: '凯尔特结 · Knots', set: 'binary', painter: 'knot',
+    weights: { w0: 0.35, w1: 0.45, wS: 2.0, wB: 7.0, w3: 0.22, w4: 0.08 },
+    pal: { bg: '#faf5ec', glow: 'rgba(109,40,217,.16)', line: '#6d28d9', dot: '#4c1d95', grid: 'rgba(120,113,108,.14)' },
+    desc: '同样是连通图块，但改用穿过中心的曲线来画，长段就绕成了编织绳结。'
+  },
+  {
+    key: 'dungeon', name: '地牢房间 · Dungeon', set: 'binary', painter: 'dungeon',
+    weights: { w0: 16, w1: 0.05, wS: 2.6, wB: 3.2, w3: 1.1, w4: 3.6 },
+    pal: { bg: '#3f3f46', glow: 'rgba(253,230,138,.16)', line: '#fde68a', dot: '#fef3c7', grid: 'rgba(161,161,170,.18)' },
+    desc: '墙（空白）的权重压倒性高，但十字也留足了余地 —— 于是大片墙里长出成片的房间，再用走廊连起来。'
+  },
+  {
+    key: 'terrain', name: '等高地形 · Terrain', set: 'corner', painter: 'terrain',
+    weights: { wFlat: [8.0, 1.0, 8.5], wEdge: 0.4 },
+    pal: { bg: '#60a5fa', deep: '#60a5fa', shallow: '#bae6fd', land: '#86efac', landLine: '#166534', grid: 'rgba(30,64,175,.12)' },
+    desc: '换成高度图块：四角取深水/浅滩/陆地，且一格内高度差不允许超过一级 —— 3^4 种组合因此只剩 31 种。这个「不许跳级」让约束真正变硬：跨格高度被迫平滑过渡，才长得成连片大陆和海岸线，而不是一片噪点。'
+  }
+];
+
+function tilesOf(preset){
+  return preset.set === 'corner' ? CORNER_TILES : BINARY_TILES;
+}
+function weightsOf(preset){
+  const tiles = tilesOf(preset);
+  return tiles.map(t => {
+    if (preset.set === 'corner'){
+      const c = t.corners;
+      const hi = Math.max(c[0], c[1], c[2], c[3]);
+      const lo = Math.min(c[0], c[1], c[2], c[3]);
+      return hi === lo ? preset.weights.wFlat[hi] : preset.weights.wEdge;
+    }
+    return binaryWeight(t.id, preset.weights);
+  });
+}
+
+/* ============================================================
+   3. WFC 引擎
+   ============================================================ */
+const SNAP_LIMIT = 300;
+
+class WFC {
+  constructor(opts){
+    this.cols = opts.cols;
+    this.rows = opts.rows;
+    this.tiles = opts.tiles;
+    this.n = this.tiles.length;
+    this.weights = opts.weights;
+    this.periodic = !!opts.periodic;
+    this.rnd = mulberry32(opts.seed >>> 0);
+    this.compat = buildCompat(this.tiles);
+    this.N = this.cols * this.rows;
+    this.full = (1 << this.n) - 1;
+    this.options = new Int32Array(this.N);
+    this.reset();
+  }
+  reset(){
+    this.options.fill(this.full);
+    this.history = [];
+    this.conflicts = 0; this.backtracks = 0; this.restarts = 0; this.steps = 0;
+    this.done = false; this.failed = false;
+    this.changed = [];
+    this.lastCell = -1;
+  }
+  neighbor(i, d){
+    const cols = this.cols, rows = this.rows;
+    const x = i % cols, y = (i - x) / cols;
+    let nx = x + DX[d], ny = y + DY[d];
+    if (this.periodic){ nx = (nx + cols) % cols; ny = (ny + rows) % rows; }
+    else if (nx < 0 || ny < 0 || nx >= cols || ny >= rows) return -1;
+    return ny * cols + nx;
+  }
+  pick(){
+    let best = -1, bestScore = Infinity;
+    for (let i = 0; i < this.N; i++){
+      const c = popcnt(this.options[i]);
+      if (c <= 1) continue;
+      const sc = c + this.rnd() * 0.001;   // 打破平局
+      if (sc < bestScore){ bestScore = sc; best = i; }
+    }
+    return best;
+  }
+  choose(i){
+    const m = this.options[i];
+    let total = 0, mm = m;
+    while (mm){ const b = mm & -mm; total += this.weights[bitIndex(b)]; mm ^= b; }
+    let r = this.rnd() * total;
+    mm = m;
+    while (mm){
+      const b = mm & -mm; const t = bitIndex(b); mm ^= b;
+      r -= this.weights[t];
+      if (r <= 0) return t;
+    }
+    return bitIndex(m & -m);
+  }
+  propagate(seeds){
+    this.changed.length = 0;
+    const stack = seeds.slice();
+    const inS = new Uint8Array(this.N);
+    for (let k = 0; k < stack.length; k++) inS[stack[k]] = 1;
+    while (stack.length){
+      const i = stack.pop(); inS[i] = 0;
+      const m = this.options[i];
+      if (m === 0) return false;
+      for (let d = 0; d < 4; d++){
+        const j = this.neighbor(i, d);
+        if (j < 0) continue;
+        let allowed = 0, mm = m;
+        while (mm){ const b = mm & -mm; mm ^= b; allowed |= this.compat[d][bitIndex(b)]; }
+        const before = this.options[j];
+        const after = before & allowed;
+        if (after !== before){
+          this.options[j] = after;
+          this.changed.push(j);
+          if (after === 0) return false;
+          if (!inS[j]){ stack.push(j); inS[j] = 1; }
+        }
+      }
+    }
+    return true;
+  }
+  step(){
+    if (this.done || this.failed) return false;
+    const i = this.pick();
+    if (i < 0){ this.done = true; return false; }
+
+    const snap = this.history.length < SNAP_LIMIT ? this.options.slice() : null;
+    const t = this.choose(i);
+    this.options[i] = 1 << t;
+    this.changed.length = 0; this.changed.push(i);
+    if (this.propagate([i])){
+      this.history.push({ snap: snap, cell: i, chosen: t });
+      this.steps++; this.lastCell = i;
+      return true;
+    }
+    this.conflicts++;
+    return this.recover(snap, i, t);
+  }
+  recover(snap, cell, banned){
+    // 先试着回退一步并划掉刚才那个错误选择
+    if (snap){
+      this.options.set(snap);
+      this.backtracks++;
+      const m = this.options[cell] & ~(1 << banned);
+      if (m !== 0){
+        this.options[cell] = m;
+        this.changed.length = 0; this.changed.push(cell);
+        if (this.propagate([cell])) return true;
+      }
+    }
+    // 退回更早的存档点逐层再试
+    while (this.history.length){
+      const h = this.history.pop();
+      if (!h.snap) continue;
+      this.options.set(h.snap);
+      this.backtracks++;
+      const m2 = this.options[h.cell] & ~(1 << h.chosen);
+      if (m2 === 0) continue;
+      this.options[h.cell] = m2;
+      this.changed.length = 0; this.changed.push(h.cell);
+      if (this.propagate([h.cell])) return true;
+    }
+    // 实在救不回来，整局重织（换一个派生种子）
+    this.restarts++;
+    if (this.restarts > 24){ this.failed = true; return false; }
+    this.options.fill(this.full);
+    this.history = [];
+    this.changed.length = 0;
+    return true;
+  }
+  collapsedCount(){
+    let c = 0;
+    for (let i = 0; i < this.N; i++) if (popcnt(this.options[i]) === 1) c++;
+    return c;
+  }
+  avgOptions(){
+    let s = 0, k = 0;
+    for (let i = 0; i < this.N; i++){
+      const c = popcnt(this.options[i]);
+      if (c > 1){ s += c; k++; }
+    }
+    return k ? s / k : 0;
+  }
+  result(){
+    const out = new Int16Array(this.N);
+    for (let i = 0; i < this.N; i++){
+      const m = this.options[i];
+      out[i] = popcnt(m) === 1 ? bitIndex(m & -m) : -1;
+    }
+    return out;
+  }
+  /* 校验：每一对相邻格的四条边是否真的对得上 */
+  validate(){
+    const g = this.result();
+    if (g.indexOf(-1) >= 0) return { ok: false, reason: '还有未坍缩的格' };
+    for (let y = 0; y < this.rows; y++){
+      for (let x = 0; x < this.cols; x++){
+        const i = y * this.cols + x;
+        const a = this.tiles[g[i]];
+        for (let d = 0; d < 4; d++){
+          const j = this.neighbor(i, d);
+          if (j < 0) continue;
+          const b = this.tiles[g[j]];
+          if (a.edges[d] !== b.edges[OPP[d]]){
+            return { ok: false, reason: '(' + x + ',' + y + ') 的' + DIR_ZH[d] + '边与邻居对不上' };
+          }
+        }
+      }
+    }
+    return { ok: true };
+  }
+}
+
+/* ============================================================
+   4. 画法
+   ============================================================ */
+function strokeArms(g, e, cx, cy, x, y, s){
+  if (e[0]){ g.beginPath(); g.moveTo(cx, cy); g.lineTo(cx, y); g.stroke(); }
+  if (e[1]){ g.beginPath(); g.moveTo(cx, cy); g.lineTo(x + s, cy); g.stroke(); }
+  if (e[2]){ g.beginPath(); g.moveTo(cx, cy); g.lineTo(cx, y + s); g.stroke(); }
+  if (e[3]){ g.beginPath(); g.moveTo(cx, cy); g.lineTo(x, cy); g.stroke(); }
+}
+function edgeMid(d, x, y, s){
+  if (d === 0) return [x + s / 2, y];
+  if (d === 1) return [x + s, y + s / 2];
+  if (d === 2) return [x + s / 2, y + s];
+  return [x, y + s / 2];
+}
+
+const PAINTERS = {
+  pipe(g, x, y, s, t, pal){
+    g.fillStyle = pal.bg; g.fillRect(x, y, s, s);
+    const e = t.edges, cx = x + s / 2, cy = y + s / 2;
+    const w = Math.max(1.2, s * 0.19);
+    g.lineCap = 'round'; g.lineJoin = 'round';
+    g.strokeStyle = pal.glow; g.lineWidth = w * 2.0; strokeArms(g, e, cx, cy, x, y, s);
+    g.strokeStyle = pal.line; g.lineWidth = w;       strokeArms(g, e, cx, cy, x, y, s);
+    const c = e[0] + e[1] + e[2] + e[3];
+    if (c !== 1 && s > 9){
+      g.fillStyle = pal.dot;
+      g.beginPath(); g.arc(cx, cy, w * 0.42, 0, Math.PI * 2); g.fill();
+    }
+  },
+  maze(g, x, y, s, t, pal){
+    g.fillStyle = pal.bg; g.fillRect(x, y, s, s);
+    const e = t.edges, cx = x + s / 2, cy = y + s / 2;
+    const w = Math.max(1.2, s * 0.44);
+    g.lineCap = 'butt'; g.lineJoin = 'miter';
+    g.strokeStyle = pal.line; g.lineWidth = w; strokeArms(g, e, cx, cy, x, y, s);
+    if (s > 9){
+      g.fillStyle = pal.line;
+      g.fillRect(cx - w / 2, cy - w / 2, w, w);
+    }
+  },
+  knot(g, x, y, s, t, pal){
+    g.fillStyle = pal.bg; g.fillRect(x, y, s, s);
+    const e = t.edges, cx = x + s / 2, cy = y + s / 2;
+    const w = Math.max(1.2, s * 0.17);
+    g.lineCap = 'round'; g.lineJoin = 'round';
+    g.strokeStyle = pal.glow; g.lineWidth = w * 2.1; drawKnot(g, e, cx, cy, x, y, s);
+    g.strokeStyle = pal.line; g.lineWidth = w;       drawKnot(g, e, cx, cy, x, y, s);
+  },
+  dungeon(g, x, y, s, t, pal){
+    g.fillStyle = pal.bg; g.fillRect(x, y, s, s);
+    const e = t.edges, cx = x + s / 2, cy = y + s / 2;
+    const w = Math.max(1.2, s * 0.5);
+    g.lineCap = 'butt'; g.lineJoin = 'miter';
+    g.strokeStyle = pal.glow; g.lineWidth = w * 1.25; strokeArms(g, e, cx, cy, x, y, s);
+    g.strokeStyle = pal.line; g.lineWidth = w;       strokeArms(g, e, cx, cy, x, y, s);
+    const c = e[0] + e[1] + e[2] + e[3];
+    if (c > 0){
+      g.fillStyle = pal.dot;
+      g.fillRect(cx - w * 0.28, cy - w * 0.28, w * 0.56, w * 0.56);
+    }
+  },
+  terrain(g, x, y, s, t, pal){
+    const c = t.corners;
+    g.fillStyle = pal.deep; g.fillRect(x, y, s, s);      // 底：深水
+    fillLevel(g, x, y, s, c, 1, pal.shallow, null);      // 中层：浅滩
+    fillLevel(g, x, y, s, c, 2, pal.land, pal.landLine); // 顶层：陆地 + 海岸线
+  }
+};
+
+/* 画出「角高度 >= lv」的那块区域。sum===4 直接铺满，否则用 marching squares 轮廓 */
+function fillLevel(g, x, y, s, c, lv, fill, stroke){
+  const cc = [c[0] >= lv ? 1 : 0, c[1] >= lv ? 1 : 0, c[2] >= lv ? 1 : 0, c[3] >= lv ? 1 : 0];
+  const sum = cc[0] + cc[1] + cc[2] + cc[3];
+  if (sum === 0) return;
+  g.fillStyle = fill;
+  if (sum === 4){ g.fillRect(x, y, s, s); return; }
+  const pts = contour(cc);
+  if (!pts.length) return;
+  g.beginPath();
+  for (let k = 0; k < pts.length; k++){
+    const px = x + pts[k][0] * s, py = y + pts[k][1] * s;
+    if (k === 0) g.moveTo(px, py); else g.lineTo(px, py);
+  }
+  g.closePath();
+  g.fill();
+  if (stroke){
+    g.strokeStyle = stroke;
+    g.lineWidth = Math.max(0.6, s * 0.05);
+    g.stroke();
+  }
+}
+
+function drawKnot(g, e, cx, cy, x, y, s){
+  const dirs = [];
+  for (let d = 0; d < 4; d++) if (e[d]) dirs.push(d);
+  const cnt = dirs.length;
+  if (cnt === 0) return;
+  if (cnt === 1){
+    const p = edgeMid(dirs[0], x, y, s);
+    g.beginPath(); g.moveTo(p[0], p[1]); g.quadraticCurveTo(cx, cy, cx, cy); g.stroke();
+    return;
+  }
+  if (cnt === 2){
+    const a = edgeMid(dirs[0], x, y, s), b = edgeMid(dirs[1], x, y, s);
+    g.beginPath(); g.moveTo(a[0], a[1]); g.quadraticCurveTo(cx, cy, b[0], b[1]); g.stroke();
+    return;
+  }
+  // 三通 / 十字：先画一圈小结，再接出各条腿
+  const r = s * 0.17;
+  g.beginPath(); g.arc(cx, cy, r, 0, Math.PI * 2); g.stroke();
+  for (let k = 0; k < cnt; k++){
+    const p = edgeMid(dirs[k], x, y, s);
+    g.beginPath(); g.moveTo(cx, cy); g.quadraticCurveTo(cx + (p[0] - cx) * 0.5, cy + (p[1] - cy) * 0.5, p[0], p[1]); g.stroke();
+  }
+}
+
+/* marching squares 轮廓：按 角→边 顺序扫一圈，实心角入列，两端状态不同的边取中点。
+   鞍点会自然生成自交多边形，nonzero 填充下正好是两个对角三角。 */
+function contour(c){
+  const cornerPt = [[0, 0], [1, 0], [1, 1], [0, 1]];      // TL TR BR BL
+  const edgePt = [[0.5, 0], [1, 0.5], [0.5, 1], [0, 0.5]]; // 上 右 下 左
+  const pts = [];
+  for (let k = 0; k < 4; k++){
+    if (c[k]) pts.push(cornerPt[k]);
+    if (c[k] !== c[(k + 1) % 4]) pts.push(edgePt[k]);
+  }
+  return pts;
+}
+
+/* ============================================================
+   5. 应用状态与渲染
+   ============================================================ */
+const APP = {
+  preset: PRESETS[0],
+  cols: 40,
+  speed: 6,
+  seed: '',
+  heat: true,
+  grid: false,
+  wrap: false,
+  playing: true,
+  wfc: null,
+  t0: 0,
+  ms: 0,
+  cell: 24
+};
+
+function rowsFor(cols){ return Math.max(5, Math.round(cols * 0.58)); }
+
+function build(){
+  const p = APP.preset;
+  const rows = rowsFor(APP.cols);
+  APP.wfc = new WFC({
+    cols: APP.cols, rows: rows,
+    tiles: tilesOf(p), weights: weightsOf(p),
+    seed: hashSeed(APP.seed || 'wave-loom'),
+    periodic: APP.wrap
+  });
+  APP.t0 = (typeof performance !== 'undefined' && performance.now) ? performance.now() : Date.now();
+  APP.ms = 0;
+  resizeCanvas();
+  drawLegend();
+}
+
+function resizeCanvas(){
+  const cv = $('#cv');
+  if (!cv || !APP.wfc) return;
+  const boxW = Math.max(320, (cv.parentElement ? cv.parentElement.clientWidth : 900) - 20);
+  const cs = clamp(Math.floor(boxW / APP.wfc.cols), 5, 44);
+  APP.cell = cs;
+  const dpr = (typeof window !== 'undefined' && window.devicePixelRatio) ? window.devicePixelRatio : 1;
+  cv.width = APP.wfc.cols * cs * dpr;
+  cv.height = APP.wfc.rows * cs * dpr;
+  cv.style.width = (APP.wfc.cols * cs) + 'px';
+  cv.style.height = (APP.wfc.rows * cs) + 'px';
+  const g = cv.getContext ? cv.getContext('2d') : null;
+  if (g) g.setTransform(dpr, 0, 0, dpr, 0, 0);
+}
+
+function render(){
+  const cv = $('#cv');
+  if (!cv || !APP.wfc) return;
+  const g = cv.getContext ? cv.getContext('2d') : null;
+  if (!g) return;
+  const w = APP.wfc, cs = APP.cell, p = APP.preset, pal = p.pal;
+  const n = w.n;
+  const painter = PAINTERS[p.painter];
+
+  g.fillStyle = pal.bg;
+  g.fillRect(0, 0, w.cols * cs, w.rows * cs);
+
+  for (let y = 0; y < w.rows; y++){
+    for (let x = 0; x < w.cols; x++){
+      const i = y * w.cols + x;
+      const m = w.options[i];
+      const cnt = popcnt(m);
+      const px = x * cs, py = y * cs;
+      if (cnt === 1){
+        painter(g, px, py, cs, w.tiles[bitIndex(m & -m)], pal);
+      } else {
+        if (APP.heat){
+          const t = clamp((cnt - 1) / Math.max(1, n - 1), 0, 1);
+          const light = 96 - 34 * (1 - t);
+          g.fillStyle = 'hsl(174, 42%, ' + light.toFixed(1) + '%)';
+          g.fillRect(px, py, cs, cs);
+          if (cs >= 20 && cnt < n){
+            g.fillStyle = 'rgba(17,24,39,.42)';
+            g.font = Math.floor(cs * 0.36) + 'px ui-monospace,Menlo,Consolas,monospace';
+            g.textAlign = 'center'; g.textBaseline = 'middle';
+            g.fillText(String(cnt), px + cs / 2, py + cs / 2 + 0.5);
+          }
+        } else {
+          g.fillStyle = '#eef1f4'; g.fillRect(px, py, cs, cs);
+        }
+      }
+    }
+  }
+
+  if (APP.grid){
+    g.strokeStyle = pal.grid; g.lineWidth = 1;
+    g.beginPath();
+    for (let x = 0; x <= w.cols; x++){ g.moveTo(x * cs + .5, 0); g.lineTo(x * cs + .5, w.rows * cs); }
+    for (let y = 0; y <= w.rows; y++){ g.moveTo(0, y * cs + .5); g.lineTo(w.cols * cs, y * cs + .5); }
+    g.stroke();
+  }
+
+  // 刚被约束传播扫过的格子：叠一层高亮
+  if (w.changed && w.changed.length){
+    g.fillStyle = 'rgba(13,148,136,.20)';
+    for (let k = 0; k < w.changed.length; k++){
+      const i = w.changed[k];
+      if (i < 0 || i >= w.N) continue;
+      const x = i % w.cols, y = (i - x) / w.cols;
+      g.fillRect(x * cs, y * cs, cs, cs);
+    }
+  }
+  if (w.lastCell >= 0 && !w.done){
+    const x = w.lastCell % w.cols, y = (w.lastCell - x) / w.cols;
+    g.strokeStyle = '#0d9488'; g.lineWidth = 2;
+    g.strokeRect(x * cs + 1, y * cs + 1, cs - 2, cs - 2);
+  }
+}
+
+function drawLegend(){
+  const cv = $('#lgcv');
+  if (!cv || !APP.wfc) return;
+  const g = cv.getContext ? cv.getContext('2d') : null;
+  if (!g) return;
+  const tiles = APP.wfc.tiles, p = APP.preset, pal = p.pal;
+  const painter = PAINTERS[p.painter];
+  const per = 8, cs = 56, gap = 8, lab = 16;
+  const rows = Math.ceil(tiles.length / per);
+  const dpr = (typeof window !== 'undefined' && window.devicePixelRatio) ? window.devicePixelRatio : 1;
+  const W = per * (cs + gap) - gap, H = rows * (cs + gap + lab) - gap;
+  cv.width = W * dpr; cv.height = H * dpr;
+  cv.style.width = W + 'px'; cv.style.height = H + 'px';
+  g.setTransform(dpr, 0, 0, dpr, 0, 0);
+  g.clearRect(0, 0, W, H);
+  const nameOf = p.set === 'corner'
+    ? (k => cornerName(tiles[k]))
+    : (k => binaryName(k));
+  for (let k = 0; k < tiles.length; k++){
+    const r = Math.floor(k / per), c = k % per;
+    const x = c * (cs + gap), y = r * (cs + gap + lab);
+    painter(g, x, y, cs, tiles[k], pal);
+    g.strokeStyle = '#e5e7eb'; g.lineWidth = 1;
+    g.strokeRect(x + .5, y + .5, cs - 1, cs - 1);
+    g.fillStyle = '#9ca3af';
+    g.font = '10px ui-monospace,Menlo,Consolas,monospace';
+    g.textAlign = 'center'; g.textBaseline = 'top';
+    g.fillText(nameOf(k), x + cs / 2, y + cs + 3);
+    g.fillStyle = '#c3c8d0';
+    g.fillText(tiles[k].edges.join(''), x + cs / 2, y + cs + 3 + 11 - 4);
+  }
+}
+
+/* ============================================================
+   6. 统计与主循环
+   ============================================================ */
+function updateStats(){
+  const w = APP.wfc;
+  if (!w) return;
+  const done = w.collapsedCount();
+  const pct = w.N ? done / w.N * 100 : 0;
+  setText('#sDone', done);
+  setText('#sLeft', w.N - done);
+  setText('#sEnt', w.avgOptions().toFixed(2));
+  setText('#sConf', w.conflicts);
+  setText('#sBack', w.backtracks);
+  setText('#sRestart', w.restarts);
+  setText('#sMs', Math.round(APP.ms));
+  const fill = $('#barFill'); if (fill) fill.style.width = pct.toFixed(1) + '%';
+  const tag = $('#stateTag');
+  if (tag){
+    let cls = 't-run', txt = '织造中';
+    if (w.failed){ cls = 't-fail'; txt = '织不下去了（约束过紧）'; }
+    else if (w.done){ cls = 't-done'; txt = '织完 · ' + w.steps + ' 步'; }
+    else if (!APP.playing){ cls = 't-idle'; txt = '已暂停'; }
+    tag.innerHTML = '<span class="tag2 ' + cls + '">' + txt + '</span>';
+  }
+}
+function setText(sel, v){ const el = $(sel); if (el) el.textContent = v; }
+
+let RAF = null;
+function tick(){
+  RAF = null;
+  const w = APP.wfc;
+  if (!w) return;
+  if (APP.playing && !w.done && !w.failed){
+    const t0 = (typeof performance !== 'undefined' && performance.now) ? performance.now() : Date.now();
+    for (let k = 0; k < APP.speed; k++){
+      if (!w.step()) break;
+    }
+    const t1 = (typeof performance !== 'undefined' && performance.now) ? performance.now() : Date.now();
+    APP.ms += (t1 - t0);
+  }
+  render();
+  updateStats();
+  if (APP.playing && !w.done && !w.failed) schedule();
+}
+function schedule(){
+  if (RAF != null) return;
+  if (typeof requestAnimationFrame === 'function') RAF = requestAnimationFrame(tick);
+  else RAF = setTimeout(tick, 16);
+}
+function stop(){ if (RAF != null){ if (typeof cancelAnimationFrame === 'function') cancelAnimationFrame(RAF); else clearTimeout(RAF); RAF = null; } }
+
+function restart(keepSeed){
+  stop();
+  if (!keepSeed) APP.seed = randomSeed();
+  $('#seed').value = APP.seed;
+  build();
+  render(); updateStats();
+  schedule();
+}
+function randomSeed(){
+  const A = 'ACDEFGHJKLMNPQRTUVWXY34679';
+  let s = '';
+  for (let i = 0; i < 8; i++) s += A[Math.floor(Math.random() * A.length)];
+  return s;
+}
+
+/* ============================================================
+   7. 导出
+   ============================================================ */
+function download(name, href){
+  const a = document.createElement('a');
+  a.href = href; a.download = name;
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+}
+function exportPng(){
+  const cv = $('#cv'); if (!cv) return;
+  try { download('wave-loom-' + APP.preset.key + '-' + APP.seed + '.png', cv.toDataURL('image/png')); }
+  catch (e) { /* 忽略 */ }
+}
+function exportJson(){
+  const w = APP.wfc; if (!w) return;
+  const data = {
+    tool: 'wave-loom', preset: APP.preset.key, cols: w.cols, rows: w.rows,
+    seed: APP.seed, periodic: w.periodic, tileCount: w.n,
+    stats: { steps: w.steps, conflicts: w.conflicts, backtracks: w.backtracks, restarts: w.restarts },
+    grid: Array.from(w.result())
+  };
+  const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  download('wave-loom-' + APP.preset.key + '-' + APP.seed + '.json', url);
+  setTimeout(() => URL.revokeObjectURL(url), 4000);
+}
+
+/* ============================================================
+   8. 绑定与初始化
+   ============================================================ */
+function bind(){
+  const sel = $('#preset');
+  if (sel){
+    PRESETS.forEach((p, i) => {
+      const o = document.createElement('option');
+      o.value = String(i); o.textContent = p.name;
+      sel.appendChild(o);
+    });
+    sel.value = '0';
+    sel.addEventListener('change', () => {
+      APP.preset = PRESETS[Number(sel.value)];
+      $('#presetDesc').textContent = APP.preset.desc;
+      restart(true);
+    });
+  }
+
+  const cols = $('#cols');
+  if (cols) cols.addEventListener('input', () => {
+    APP.cols = Number(cols.value);
+    setText('#colsV', APP.cols);
+    restart(true);
+  });
+  const sp = $('#speed');
+  if (sp) sp.addEventListener('input', () => {
+    APP.speed = Number(sp.value);
+    setText('#speedV', APP.speed);
+  });
+  const seed = $('#seed');
+  if (seed) seed.addEventListener('change', () => { APP.seed = seed.value || randomSeed(); restart(true); });
+
+  const on = (id, fn) => { const el = $(id); if (el) el.addEventListener('click', fn); };
+  on('#btnSeed', () => restart(false));
+  on('#btnReset', () => restart(false));
+  on('#btnStep', () => {
+    APP.playing = false;
+    setPlayLabel();
+    if (APP.wfc && !APP.wfc.done && !APP.wfc.failed){
+      const t0 = (typeof performance !== 'undefined' && performance.now) ? performance.now() : Date.now();
+      APP.wfc.step();
+      APP.ms += ((typeof performance !== 'undefined' && performance.now) ? performance.now() : Date.now()) - t0;
+    }
+    render(); updateStats();
+  });
+  on('#btnPlay', () => {
+    APP.playing = !APP.playing;
+    setPlayLabel();
+    if (APP.playing) schedule(); else stop();
+  });
+  on('#btnFast', () => {
+    const w = APP.wfc; if (!w) return;
+    const t0 = (typeof performance !== 'undefined' && performance.now) ? performance.now() : Date.now();
+    let guard = w.N * 6 + 5000;
+    while (!w.done && !w.failed && guard-- > 0) w.step();
+    APP.ms += ((typeof performance !== 'undefined' && performance.now) ? performance.now() : Date.now()) - t0;
+    render(); updateStats();
+  });
+  on('#btnPng', exportPng);
+  on('#btnJson', exportJson);
+
+  const cb = (id, key, after) => { const el = $(id); if (el) el.addEventListener('change', () => { APP[key] = el.checked; if (after) after(); else { render(); } }); };
+  cb('#cbHeat', 'heat');
+  cb('#cbGrid', 'grid');
+  cb('#cbWrap', 'wrap', () => restart(true));
+
+  if (typeof window !== 'undefined' && window.addEventListener){
+    let t = null;
+    window.addEventListener('resize', () => {
+      clearTimeout(t);
+      t = setTimeout(() => { resizeCanvas(); render(); }, 120);
+    });
+  }
+}
+function setPlayLabel(){
+  const b = $('#btnPlay');
+  if (b) b.textContent = APP.playing ? '暂停' : '继续';
+}
+
+function init(){
+  try {
+    APP.seed = randomSeed();
+    bind();
+    const seedEl = $('#seed'); if (seedEl) seedEl.value = APP.seed;
+    setText('#colsV', APP.cols);
+    setText('#speedV', APP.speed);
+    const d = $('#presetDesc'); if (d) d.textContent = APP.preset.desc;
+    build();
+    render();
+    updateStats();
+    setPlayLabel();
+    schedule();
+  } catch (e) {
+    if (typeof console !== 'undefined' && console.error) console.error(e);
+  }
+}
+
+if (typeof document !== 'undefined' && document.querySelector) init();
+</script>
+</body>
+</html>
