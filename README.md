@@ -1,5 +1,12 @@
 # 坍缩织机 · Wave Loom
 
+<p align="center">
+  <a href="https://github.com/CJX0712/wave-loom/actions/workflows/ci.yml"><img src="https://github.com/CJX0712/wave-loom/actions/workflows/ci.yml/badge.svg" alt="ci"></a>
+  <a href="https://github.com/CJX0712/wave-loom/releases"><img src="https://img.shields.io/github/v/release/CJX0712/wave-loom?sort=semver" alt="release"></a>
+  <a href="https://github.com/CJX0712/wave-loom/blob/main/LICENSE"><img src="https://img.shields.io/github/license/CJX0712/wave-loom" alt="license"></a>
+  <img src="https://img.shields.io/badge/author-%E6%99%A8%E6%98%9F-1f6feb" alt="author">
+</p>
+
 Wave Function Collapse 的可视化织机。不靠随机堆砌图案，靠**约束**让图案自己长出来 —— 而且把「熵、约束传播、冲突、回溯」整套过程摊开给你看。
 
 单个 HTML 文件，双击即用。零依赖、零构建、**完全离线**，不联网、不上传。
